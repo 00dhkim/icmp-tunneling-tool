@@ -336,7 +336,7 @@ class Ping(object):
         else:
             self.print_failed()
 
-    def send_one_ping(self, current_socket):
+    def send_one_ping(self, current_socket: socket.socket):
         """
         Send one ICMP ECHO_REQUEST
         """
@@ -423,11 +423,12 @@ class Ping(object):
                 return None, 0, 0, 0, 0
 
 class PingTunnel(Ping):
-    def __init__(self, destination, timeout, text, *args, **kwargs):
-        self.text = text
+    def __init__(self, destination: str, timeout: int, encoded_text: bytes, *args, **kwargs):
+        self.data = encoded_text
         super().__init__(destination=destination, timeout=timeout, *args, **kwargs)
+        self.response.packet_size = len(self.text)
     
-    def send_one_ping(self, current_socket):
+    def send_one_ping(self, current_socket: socket.socket):
         """
         Send one ICMP ECHO_REQUEST
         """
@@ -439,11 +440,12 @@ class PingTunnel(Ping):
             "!BBHHH", ICMP_ECHO, 0, checksum, self.own_id, self.seq_number
         )
 
-        padBytes = []
-        startVal = 0x42
-        for i in range(startVal, startVal + (self.packet_size)):
-            padBytes += [(i & 0xff)]  # Keep chars in the 0-255 range
-        data = bytes(padBytes)
+        # padBytes = []
+        # startVal = 0x42
+        # for i in range(startVal, startVal + (self.packet_size)):
+        #     padBytes += [(i & 0xff)]  # Keep chars in the 0-255 range
+        # data = bytes(padBytes)
+        data = self.data
 
         # Calculate the checksum on the data and the dummy header.
         checksum = calculate_checksum(header + data) # Checksum is in network order
@@ -469,10 +471,19 @@ class PingTunnel(Ping):
         
 
 
-def ping(hostname, timeout=1000, count=3, packet_size=55, *args, **kwargs):
+def ping(hostname: str, timeout=1000, count=3, packet_size=55, *args, **kwargs):
     p = Ping(hostname, timeout, packet_size, *args, **kwargs)
     return p.run(count)
 
-def icmp_tunnel(hostname, text, timeout=1000, count=3, *args, **kwargs):
-    p = PingTunnel(hostname, timeout, text, *args, **kwargs)
-    return p.run(count)
+
+def icmp_tunnel(hostname: str, text: str, timeout=1000, count=3, encrypt=False, *args, **kwargs):
+
+    # 1000 byte씩 나눠서 보내기
+    for i in range(0, len(text), 1000):
+        p = PingTunnel(hostname, timeout, text[i:i+1000].encode('utf-8'), *args, **kwargs)
+        r = p.run(count)
+        
+        if r.ret_code == 0:
+            print(f'[+] Ping {r.packet_size} bytes to {r.destination}')
+        else:
+            print(f'[-] Ping Failed {r.packet_size} bytes to {r.destination} (errno: {r.ret_code})')
