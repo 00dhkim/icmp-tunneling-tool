@@ -426,7 +426,7 @@ class PingTunnel(Ping):
     def __init__(self, destination: str, timeout: int, encoded_text: bytes, *args, **kwargs):
         self.data = encoded_text
         super().__init__(destination=destination, timeout=timeout, *args, **kwargs)
-        self.response.packet_size = len(self.text)
+        self.response.packet_size = len(self.data)
     
     def send_one_ping(self, current_socket: socket.socket):
         """
@@ -480,7 +480,13 @@ def icmp_tunnel(hostname: str, text: str, timeout=1000, count=3, encrypt=False, 
 
     # 1000 byte씩 나눠서 보내기
     for i in range(0, len(text), 1000):
-        p = PingTunnel(hostname, timeout, text[i:i+1000].encode('utf-8'), *args, **kwargs)
+        
+        if encrypt:
+            data = ''
+        else:
+            data = text[i:i+1000].encode('utf-8')
+        
+        p = PingTunnel(hostname, timeout, data, *args, **kwargs)
         r = p.run(count)
         
         if r.ret_code == 0:

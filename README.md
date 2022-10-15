@@ -8,6 +8,8 @@ TCP, UDP 프로토콜이 차단된 내부 망이 있을 때, 내부에서 외부
 
 send.py
 - 특정 text 파일을 원하는 IP로 전송
+- 특정 utf-8 text 파일을 원하는 IP로 전송
+- 암호화된 binary 파일을 원하는 IP로 전송
 
 receive.py
 - 특정 IP에서 전송하는 ping을 읽어 데이터로 복호화시킴

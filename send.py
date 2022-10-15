@@ -13,4 +13,4 @@ culpa qui officia deserunt mollit anim id est laborum.'''*10
 
 
 # no return
-pyping.icmp_tunnel(hostname='loopback', text=text, count=1, encrypt=True)
+pyping.icmp_tunnel(hostname='loopback', text=text, count=1, encrypt=False)
