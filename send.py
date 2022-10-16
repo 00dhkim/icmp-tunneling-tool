@@ -71,14 +71,15 @@ def icmp_tunnel(hostname: str, data: bytes, filename='', timeout=1000, count=3, 
         encrypt (bool, optional): data encryption with AES-CBC. Defaults to False.
     """
     
-    metadata = f'{filename}:{00000000:08}:{len(data)}:'.encode('utf-8')
+    metadata = f'{filename}\x1f{00000000:08}\x1f{len(data)}\x1f'.encode('utf-8')
     # data field structure == filename:id:content length:binary data
     # len(data)는 원본 파일의 길이, 암호화 이전의 길이를 말함
+    # \x1f는 unit separator, 어디까지가 메타데이터인지 구분하기 위함
     
     # `packet_size` 만큼 나눠서 보내기 (기본값 1000바이트)
     for i in range(0, len(data), packet_size - len(metadata)):
         
-        metadata = f'{filename}:{i//(packet_size - len(metadata)):08}:{len(data)}:'.encode('utf-8')
+        metadata = f'{filename}\x1f{i//(packet_size - len(metadata)):08}\x1f{len(data)}\x1f'.encode('utf-8')
         splited_data = data[i:i + packet_size - len(metadata)]
         
         if encrypt:
@@ -98,7 +99,8 @@ def icmp_tunnel(hostname: str, data: bytes, filename='', timeout=1000, count=3, 
 
 if __name__ == '__main__':
     
-    with open('data.txt', 'rb') as f:
+    FILENAME = 'data2.txt'
+    with open(FILENAME, 'rb') as f:
         data = f.read()
 
-    icmp_tunnel(hostname='loopback', data=data, filename='data.txt', count=1, encrypt=False)
+    icmp_tunnel(hostname='172.26.64.1', data=data, filename=FILENAME, count=1, encrypt=False)
