@@ -101,4 +101,4 @@ if __name__ == '__main__':
     with open('data.txt', 'rb') as f:
         data = f.read()
 
-    icmp_tunnel(hostname='loopback', data=data, filename='data.txt', count=1, encrypt=True)
+    icmp_tunnel(hostname='loopback', data=data, filename='data.txt', count=1, encrypt=False)
