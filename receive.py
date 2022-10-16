@@ -2,6 +2,7 @@ import pyshark
 from pprint import pprint
 
 #TODO: sudo tcpdump -w packet/{datetime}.pcap -i eth0 icmp src 0.0.0.0
+# or capture with pyshark
 
 captured = pyshark.FileCapture('packet/two_file.pcapng')
 
