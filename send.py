@@ -66,19 +66,25 @@ def icmp_tunnel(hostname: str, data: bytes, filename='', timeout=1000, count=3, 
         filename (str, optional): filename of `data`. Defaults to ''.
         timeout (int, optional):  Defaults to 1000.
         count (int, optional): how many reputations you send same packet. Defaults to 3.
-        packet_size (int, optional): size of packet at one time. Defaults to 1000.
+        packet_size (int, optional): size of data field (in packet) at one time. Defaults to 1000.
         encrypt (bool, optional): data encryption with AES-CBC. Defaults to False.
     """
 
-    # `packet_size`` 크기만큼 나눠서 보내기 (기본값 1000바이트)
-    for i in range(0, len(data), packet_size):
+    metadata = f'{filename}:{00000000:08}:{len(data)}:'.encode('utf-8')
+    
+    # `packet_size` 만큼 나눠서 보내기 (기본값 1000바이트)
+    for i in range(0, len(data), packet_size - len(metadata)):
+        
+        metadata = f'{filename}:{i//(packet_size - len(metadata)):08}:{len(data)}:'.encode('utf-8')
+        print(metadata)
         
         if encrypt:
             data = ''
+            raise NotImplementedError('encryption is not implemented yet')
         else:
             splited_data = data[i:i+packet_size]
         
-        p = PingTunnel(hostname, timeout, splited_data, *args, **kwargs)
+        p = PingTunnel(hostname, timeout, metadata+splited_data, *args, **kwargs)
         r = p.run(count)
         
         if r.ret_code == 0:
