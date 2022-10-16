@@ -7,12 +7,13 @@ import sys
 import time
 
 import pyping
+import encryptor
 
 class PingTunnel(pyping.Ping):
-    def __init__(self, destination: str, timeout: int, binary_data: bytes, *args, **kwargs):
-        self.data = binary_data
+    def __init__(self, destination: str, timeout: int, datafield: bytes, *args, **kwargs):
+        self.datafield = datafield
         super().__init__(destination=destination, timeout=timeout, *args, **kwargs)
-        self.response.packet_size = len(self.data)
+        self.response.packet_size = len(self.datafield)
     
     def send_one_ping(self, current_socket: socket.socket):
         """
@@ -31,7 +32,7 @@ class PingTunnel(pyping.Ping):
         # for i in range(startVal, startVal + (self.packet_size)):
         #     padBytes += [(i & 0xff)]  # Keep chars in the 0-255 range
         # data = bytes(padBytes)
-        data = self.data
+        data = self.datafield
 
         # Calculate the checksum on the data and the dummy header.
         checksum = pyping.calculate_checksum(header + data) # Checksum is in network order
@@ -69,22 +70,24 @@ def icmp_tunnel(hostname: str, data: bytes, filename='', timeout=1000, count=3, 
         packet_size (int, optional): size of data field (in packet) at one time. Defaults to 1000.
         encrypt (bool, optional): data encryption with AES-CBC. Defaults to False.
     """
-
+    
     metadata = f'{filename}:{00000000:08}:{len(data)}:'.encode('utf-8')
+    # data field structure == filename:id:content length:binary data
+    # len(data)는 원본 파일의 길이, 암호화 이전의 길이를 말함
     
     # `packet_size` 만큼 나눠서 보내기 (기본값 1000바이트)
     for i in range(0, len(data), packet_size - len(metadata)):
         
         metadata = f'{filename}:{i//(packet_size - len(metadata)):08}:{len(data)}:'.encode('utf-8')
-        print(metadata)
+        splited_data = data[i:i + packet_size - len(metadata)]
         
         if encrypt:
-            data = ''
-            raise NotImplementedError('encryption is not implemented yet')
+            # 암호화 과정에서 길이가 `packet_size`보다 조금 길어짐
+            datafield = encryptor.encrypt(metadata+splited_data)
         else:
-            splited_data = data[i:i+packet_size]
+            datafield = metadata + splited_data
         
-        p = PingTunnel(hostname, timeout, metadata+splited_data, *args, **kwargs)
+        p = PingTunnel(hostname, timeout, datafield, *args, **kwargs)
         r = p.run(count)
         
         if r.ret_code == 0:
@@ -98,4 +101,4 @@ if __name__ == '__main__':
     with open('data.txt', 'rb') as f:
         data = f.read()
 
-    icmp_tunnel(hostname='loopback', data=data, filename='data.txt', count=1)
+    icmp_tunnel(hostname='loopback', data=data, filename='data.txt', count=1, encrypt=True)

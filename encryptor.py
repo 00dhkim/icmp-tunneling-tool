@@ -20,18 +20,18 @@ assert len(key) == 32 # key length must be 32 bytes
 
 BLOCK_SIZE = 16
 
-def encrypt(msg: str):
+def encrypt(msg: bytes) -> bytes:
     
-    def _pad(s):
+    def _pad(s: bytes):
         return s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE).encode('utf-8')
-    msg = _pad(msg.encode('utf-8'))
+    msg = _pad(msg)
     
     iv = bytes([0x00] * 16)
     cipher = AES.new(key, AES.MODE_CBC, iv=iv)
     ciphertext = cipher.encrypt(msg)
     return ciphertext
 
-def decrypt(ciphertext):
+def decrypt(ciphertext: bytes) -> bytes:
     
     def _unpad(s):
         return s[:-s[-1]]
@@ -39,12 +39,12 @@ def decrypt(ciphertext):
     iv = bytes([0x00] * 16)
     cipher = AES.new(key, AES.MODE_CBC, iv=iv)
     plaintext = cipher.decrypt(ciphertext)
-    return _unpad(plaintext).decode('utf-8')
+    return _unpad(plaintext)
 
 
 if __name__ == '__main__':
-    ciphertext = encrypt('김도현김도현김도현김도현김도현')
-    # ciphertext = encrypt('happy')
+    ciphertext = encrypt('김도현김도현김도현김도현김도현'.encode('utf-8'))
+    # ciphertext = encrypt(b'happy')
     
     plaintext = decrypt(ciphertext)
     
@@ -52,5 +52,5 @@ if __name__ == '__main__':
     if not plaintext:
         print('Message is corrupted')
     else:
-        len_bytes = len(plaintext.encode('utf-8'))
-        print(f'Plain text: {plaintext}, length: {len_bytes}')
+        len_bytes = len(plaintext)
+        print(f'Plain text: {plaintext.decode()}, length: {len_bytes}')
