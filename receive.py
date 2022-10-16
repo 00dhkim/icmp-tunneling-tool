@@ -6,6 +6,10 @@ from pprint import pprint
 
 captured = pyshark.FileCapture('packet/two_file.pcapng')
 
+# TODO: data decryption if needed
+# \x1f로 split 안된다 -> 복호화 시도
+# 복호화 실패 -> pass
+
 packet_list = []
 
 for packet in captured:
