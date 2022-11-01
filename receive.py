@@ -1,14 +1,12 @@
 import pyshark
 from pprint import pprint
 
-#TODO: sudo tcpdump -w packet/{datetime}.pcap -i eth0 icmp src 0.0.0.0
-# or capture with pyshark
-
+# capture with pyshark
 captured = pyshark.FileCapture('packet/two_file.pcapng')
 
 # TODO: data decryption if needed
 # \x1f로 split 안된다 -> 복호화 시도
-# 복호화 실패 -> pass
+# 복호화 실패 -> error
 
 packet_list = []
 
