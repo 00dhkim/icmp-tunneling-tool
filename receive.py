@@ -20,6 +20,10 @@ def is_encrypted(data: bytes):
 
 packet_list = []
 
+#############################################
+# 패킷을 하나씩 읽어서 packet_list에 저장
+#############################################
+
 for packet in captured:
     try:
         if packet.icmp.type == '0': # Echo (ping) reply aka. pong
@@ -52,6 +56,11 @@ for packet in captured:
 packet_list = sorted(packet_list, key=lambda x: (x['filename'], x['id']))
 # print(len(packet_list))
 # pprint(packet_list)
+
+
+#############################################
+# packet_list를 순회하면서 파일을 생성
+#############################################
 
 # get all filename in packet_list
 filenames = sorted(list(set([x['filename'] for x in packet_list])))
