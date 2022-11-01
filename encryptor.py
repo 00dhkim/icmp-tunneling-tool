@@ -8,14 +8,18 @@ binary encryption by AES-CBC
 - date: 2022-10-16
 - description:
     I modified it to use utf-8 encoding
+    If key length is not 32 bytes, it will be padded with 0x00
 
 """
 
 from Crypto.Cipher import AES
 from secrets import token_bytes
 
-# key = token_bytes(32)
-key = 'happynewyear2022happynewyear2022'.encode('utf-8')
+key = ''
+with open('key.txt', 'r') as f:
+    key = f.read().encode('utf-8')[:32]
+    key = key + bytes([0x00] * (32 - len(key))) # padding
+
 assert len(key) == 32 # key length must be 32 bytes
 
 BLOCK_SIZE = 16
@@ -43,7 +47,7 @@ def decrypt(ciphertext: bytes) -> bytes:
 
 
 if __name__ == '__main__':
-    ciphertext = encrypt('김도현김도현김도현김도현김도현'.encode('utf-8'))
+    ciphertext = encrypt('이것은 김도현이 작성한 테스트 문구입니다~!@#$%^&*()_+'.encode('utf-8'))
     # ciphertext = encrypt(b'happy')
     
     plaintext = decrypt(ciphertext)
