@@ -1,21 +1,40 @@
 import pyshark
 from pprint import pprint
+import encryptor
 
-# capture with pyshark
-captured = pyshark.FileCapture('packet/two_file.pcapng')
+captured = pyshark.FileCapture('packet/packet_enc_1101.pcapng')
+# captured = pyshark.FileCapture('packet/two_file.pcapng')
 
-# TODO: data decryption if needed
-# \x1f로 split 안된다 -> 복호화 시도
-# 복호화 실패 -> error
+
+def is_encrypted(data: bytes):
+    """
+    received_data가 암호화되었는지 판단하는 함수\n
+    split 했을 때 결과가 4이고, id_의 길이가 8 byte이면 평문으로 판단
+    """
+    if len(data.split(b'\x1f')) != 4:
+        return True
+    if len(data.split(b'\x1f')[1]) != 8:
+        return True
+    return False
+
 
 packet_list = []
 
 for packet in captured:
     try:
-        if packet.icmp.type == '0': # Echo (ping) reply
-            pass
-        elif packet.icmp.type == '8':
+        if packet.icmp.type == '0': # Echo (ping) reply aka. pong
+            print(f'[+] No.{packet.number} Echo reply. skipped.')
+        elif packet.icmp.type == '8': # Echo (ping) request
+            print(f'[+] No.{packet.number} Echo request')
             received_data = bytes.fromhex(packet.icmp.data) # hex string -> bytes
+            
+            # 암호화 여부 판단
+            isEncrypted = is_encrypted(received_data)
+            print(f'    [+] Encrypted: {isEncrypted}')
+            
+            if isEncrypted:
+                received_data = encryptor.decrypt(received_data) # 복호화
+            
             filename, id_, content_length, datafield = received_data.split(b'\x1f') # unit separator
             packet_list.append({
                 'id': int(id_),
@@ -23,16 +42,12 @@ for packet in captured:
                 'content_length': int(content_length),
                 'datafield': datafield # bytes
             })
-        if packet.icmp.type == '8':
-            print(f'[+] {packet.number} ping')
-        elif packet.icmp.type == '0':
-            print(f'[+] {packet.number} pong')
         else:
-            print(f'[+] {packet.number} type:{packet.icmp.type}')
+            print(f'[+] No.{packet.number} type:{packet.icmp.type}. skipped.')
     except AttributeError: # not icmp packet
         pass
     except Exception as e:
-        print(f'[-] {e}')
+        print(f'[-] {e} at line {e.__traceback__.tb_lineno}')
 
 packet_list = sorted(packet_list, key=lambda x: (x['filename'], x['id']))
 # print(len(packet_list))

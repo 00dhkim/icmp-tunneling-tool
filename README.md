@@ -6,6 +6,16 @@
 
 TCP, UDP 프로토콜이 차단된 내부 망이 있을 때, 내부에서 외부로 ping이 가능한 경우(즉, ICMP 프로토콜이 막히지 않는 경우) 데이터를 유출할 수 있는 ICMP tunneling 기법으로 데이터를 유출시키는 도구.
 
+
+## 절차
+
+`(send)$ sudo -E python3 send.py`
+`(receive) packet capture with wireshark GUI`
+`(receive)$ python3 receive.py`
+
+
+## details
+
 send.py
 - 원하는 IP 지정
 - binary 파일 전송
