@@ -99,11 +99,20 @@ def icmp_tunnel(hostname: str, data: bytes, filename='', timeout=1000, count=3, 
 
 if __name__ == '__main__':
     
-    FILENAME = 'data.txt'
-    with open(FILENAME, 'rb') as f:
+    # arguments
+    if len(sys.argv) != 3 and len(sys.argv) != 4:
+        print(f'Usage: {sys.argv[0]} <hostname> <filename> [-e]')
+        exit(1)
+    
+    _, hostname, filename = sys.argv[:3]
+    is_encrypt = True if len(sys.argv) == 4 and sys.argv[3] == '-e' else False
+    
+    # read file
+    with open(filename, 'rb') as f:
         data = f.read()
 
-    icmp_tunnel(hostname='172.19.96.1', data=data, filename=FILENAME, count=1, encrypt=True)
+    # run
+    icmp_tunnel(hostname=hostname, data=data, filename=filename, count=1, encrypt=is_encrypt)
     
     # FILENAME = 'data2.txt'
     # with open(FILENAME, 'rb') as f:
