@@ -1,10 +1,34 @@
 import pyshark
 from pprint import pprint
 import encryptor
+import subprocess as sub
+import datetime
+import os
+import sys
 
-captured = pyshark.FileCapture('packet/packet_enc_1101.pcapng')
-# captured = pyshark.FileCapture('packet/two_file.pcapng')
 
+
+print('#########################')
+print('packet capture')
+print('#########################')
+print()
+
+# capture the packet
+pcap_name = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+p = sub.Popen(['tcpdump', '-w', f'{pcap_name}.pcap', 'icmp'],
+              stdout=sub.PIPE, stderr=sub.PIPE)
+
+input('Press Enter to stop capture')
+p.terminate()
+
+# if file exists, print file name
+if os.path.exists(f'{pcap_name}.pcap'):
+    print(f'[+] {pcap_name}.pcap saved')
+else:
+    print(f'[-] {pcap_name}.pcap not saved, abort')
+    sys.exit(1)
+
+captured = pyshark.FileCapture(f'{pcap_name}.pcap')
 
 def is_encrypted(data: bytes):
     """
@@ -18,12 +42,16 @@ def is_encrypted(data: bytes):
     return False
 
 
-packet_list = []
-
 #############################################
 # 패킷을 하나씩 읽어서 packet_list에 저장
 #############################################
 
+print('#########################')
+print('packet parsing')
+print('#########################')
+print()
+
+packet_list = []
 for packet in captured:
     try:
         if packet.icmp.type == '0': # Echo (ping) reply aka. pong
@@ -62,6 +90,11 @@ packet_list = sorted(packet_list, key=lambda x: (x['filename'], x['id']))
 # packet_list를 순회하면서 파일을 생성
 #############################################
 
+print('#########################')
+print('file creation')
+print('#########################')
+print()
+
 # get all filename in packet_list
 filenames = sorted(list(set([x['filename'] for x in packet_list])))
 # print(filenames)
@@ -89,9 +122,13 @@ for filename in filenames:
     if same_filename[0]['content_length'] != len(data):
         print(f'[-] {filename} content_length error')
         continue
-    else:
-        print(f'[+] {filename} content_length ok')
     
     # save file
     with open(filename, 'wb') as f:
         f.write(data)
+        print(f'[+] {filename} saved')
+
+print('#########################')
+print('done')
+print('#########################')
+print()

@@ -106,16 +106,14 @@ if __name__ == '__main__':
     
     _, hostname, filename = sys.argv[:3]
     is_encrypt = True if len(sys.argv) == 4 and sys.argv[3] == '-e' else False
+    print(f'send {filename} to {hostname} with {"encryption" if is_encrypt else "no encryption"}')
     
     # read file
     with open(filename, 'rb') as f:
         data = f.read()
+        print(f'[+] Read {len(data)} bytes from {filename}')
 
     # run
+    print(f'[+] sending..', end=' ', flush=True)
     icmp_tunnel(hostname=hostname, data=data, filename=filename, count=1, encrypt=is_encrypt)
-    
-    # FILENAME = 'data2.txt'
-    # with open(FILENAME, 'rb') as f:
-    #     data = f.read()
-
-    # icmp_tunnel(hostname='172.19.96.1', data=data, filename=FILENAME, count=1, encrypt=False)
+    print('done')
