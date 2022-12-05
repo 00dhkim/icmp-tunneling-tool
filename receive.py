@@ -7,11 +7,7 @@ import os
 import sys
 
 
-
-print('#########################')
-print('packet capture')
-print('#########################')
-print()
+print('receive.py is running...')
 
 # capture the packet
 pcap_name = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -46,10 +42,8 @@ def is_encrypted(data: bytes):
 # 패킷을 하나씩 읽어서 packet_list에 저장
 #############################################
 
-print('#########################')
-print('packet parsing')
-print('#########################')
-print()
+
+print('[+] start packet parsing')
 
 packet_list = []
 for packet in captured:
@@ -90,10 +84,7 @@ packet_list = sorted(packet_list, key=lambda x: (x['filename'], x['id']))
 # packet_list를 순회하면서 파일을 생성
 #############################################
 
-print('#########################')
-print('file creation')
-print('#########################')
-print()
+print('[+] start file creation')
 
 # get all filename in packet_list
 filenames = sorted(list(set([x['filename'] for x in packet_list])))
@@ -128,7 +119,5 @@ for filename in filenames:
         f.write(data)
         print(f'[+] {filename} saved')
 
-print('#########################')
-print('done')
-print('#########################')
-print()
+
+print('[+] done')
