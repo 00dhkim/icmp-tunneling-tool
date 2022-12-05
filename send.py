@@ -1,10 +1,6 @@
-import os
-import select
-import signal
 import socket
 import struct
 import sys
-import time
 
 import pyping
 import encryptor
