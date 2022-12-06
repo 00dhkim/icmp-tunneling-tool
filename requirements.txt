@@ -1,1 +1,2 @@
 pyshark==0.5.3
+pycryptodome==3.15.0
