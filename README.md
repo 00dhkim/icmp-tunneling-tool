@@ -37,8 +37,3 @@ receive.py
 - content length 검증
 - 데이터 복호화
 - 실제 파일로 저장
-
-
-## TODO
-
-- 가상 환경에서 NAT 환경 세팅 후 핑 발송 되는지 확인하기
