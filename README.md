@@ -16,7 +16,7 @@ TCP, UDP 프로토콜이 차단된 내부 망이 있을 때, 내부에서 외부
 ## Usage
 
     (receive)$ python3 receive.py
-    (send)$ sudo -E python3 send.py
+    (send)$ sudo -E python3 send.py <hostname> <filename> [-e]
 
 
 ## Details
